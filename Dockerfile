@@ -1,6 +1,6 @@
-FROM golang:1.21-alpine
+FROM golang:1.21-alpine as BUILDER
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # pre-copy/cache go.mod for pre-downloading dependencies and only redownloading them in subsequent builds if they change
 #COPY go.mod go.sum ./
@@ -8,5 +8,9 @@ WORKDIR /usr/src/app
 
 COPY main.go go.mod .
 RUN go build -o fullCycle .
+
+FROM scratch
+
+COPY --from=BUILDER /app/fullCycle ./fullCycle
 
 CMD ["./fullCycle"]
